@@ -89,7 +89,7 @@ func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	req.Header.Add("Referer", "https://docs.google.com/forms/d/e/1FAIpQLSc2i7W5ZBkT-v0L7CpRg-gVJm_rhc26IG5UZBQbi8O0-nvEfA/viewform?fbzx=-13497126430284079")
+	req.Header.Add("Referer", fmt.Sprintf("https://docs.google.com/forms/d/e/%s/viewform", wow.FormID)
 	req.Header.Add("Referrer-Policy", "strict-origin-when-cross-origin")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
