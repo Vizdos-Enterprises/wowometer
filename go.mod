@@ -1,3 +1,3 @@
-module github.com/vizdosenterprises/wowometer
+module github.com/Vizdos-Enterprises/wowometer
 
 go 1.22.0

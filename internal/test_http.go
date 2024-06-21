@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	wowometer_http "github.com/vizdosenterprises/wowometer/http"
+	wowometer_http "github.com/Vizdos-Enterprises/wowometer/http"
 )
 
 func StartHTTP() {
