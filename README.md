@@ -35,3 +35,11 @@ func StartHTTP() {
 	}
 }
 ```
+
+## Use the data in your app
+
+Optionally, you can use the PostAction parameter in the Wowometer structure to do what you wish with the info:
+
+```
+PostAction     func(r *http.Request, rating wowometerBody, forUserID string)
+```
