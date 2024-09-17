@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/Vizdos-Enterprises/wowometer/internal/parameters"
 )
 
 type wowometerBody struct {
@@ -71,37 +73,40 @@ func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	formData := url.Values{
-		fmt.Sprintf("entry.%s", wow.FieldIDs.UserID):   {userID},
-		fmt.Sprintf("entry.%s", wow.FieldIDs.Rating):   {fmt.Sprintf("%d", reviewBody.Rating)},
-		fmt.Sprintf("entry.%s", wow.FieldIDs.Feedback): {reviewBody.Feedback},
-		fmt.Sprintf("entry.%s", wow.FieldIDs.AppName):  {wow.ForAppName},
-	}
 
-	payload := bytes.NewBufferString(formData.Encode())
+	if !parameters.SKIP_SEND {
+		formData := url.Values{
+			fmt.Sprintf("entry.%s", wow.FieldIDs.UserID):   {userID},
+			fmt.Sprintf("entry.%s", wow.FieldIDs.Rating):   {fmt.Sprintf("%d", reviewBody.Rating)},
+			fmt.Sprintf("entry.%s", wow.FieldIDs.Feedback): {reviewBody.Feedback},
+			fmt.Sprintf("entry.%s", wow.FieldIDs.AppName):  {wow.ForAppName},
+		}
 
-	url := fmt.Sprintf("https://docs.google.com/forms/u/0/d/e/%s/formResponse", wow.FormID)
-	method := "POST"
+		payload := bytes.NewBufferString(formData.Encode())
 
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, payload)
+		url := fmt.Sprintf("https://docs.google.com/forms/u/0/d/e/%s/formResponse", wow.FormID)
+		method := "POST"
 
-	if err != nil {
-		panic(err)
-	}
+		client := &http.Client{}
+		req, err := http.NewRequest(method, url, payload)
 
-	req.Header.Add("Referer", fmt.Sprintf("https://docs.google.com/forms/d/e/%s/viewform", wow.FormID))
-	req.Header.Add("Referrer-Policy", "strict-origin-when-cross-origin")
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		if err != nil {
+			panic(err)
+		}
 
-	res, err := client.Do(req)
-	if err != nil {
-		log.Println(err)
-	}
-	defer res.Body.Close()
+		req.Header.Add("Referer", fmt.Sprintf("https://docs.google.com/forms/d/e/%s/viewform", wow.FormID))
+		req.Header.Add("Referrer-Policy", "strict-origin-when-cross-origin")
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	if res.StatusCode != 200 {
-		log.Printf("NEW FALLBACK REVIEW (%s): %s %d %s", wow.ForAppName, userID, reviewBody.Rating, reviewBody.Feedback)
+		res, err := client.Do(req)
+		if err != nil {
+			log.Println(err)
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode != 200 {
+			log.Printf("NEW FALLBACK REVIEW (%s): %s %d %s", wow.ForAppName, userID, reviewBody.Rating, reviewBody.Feedback)
+		}
 	}
 
 	wow.PostAction(r, reviewBody, userID)
