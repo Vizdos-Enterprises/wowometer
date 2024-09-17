@@ -35,6 +35,7 @@ type WowometerEndpoint struct {
 	FieldIDs       WowometerFormEntryIDs
 	FormID         string
 	DiscoverUserID func(r *http.Request) (string, error)
+	PostAction     func(r *http.Request, rating wowometerBody, forUserID string)
 }
 
 func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -95,11 +96,13 @@ func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
 		log.Printf("NEW FALLBACK REVIEW (%s): %s %d %s", wow.ForAppName, userID, reviewBody.Rating, reviewBody.Feedback)
 	}
+
+	wow.PostAction(r, reviewBody, userID)
 }
