@@ -43,3 +43,8 @@ Optionally, you can use the PostAction parameter in the Wowometer structure to d
 ```
 PostAction     func(r *http.Request, rating wowometerBody, forUserID string)
 ```
+
+
+## Testing
+
+If you would just like to test your PostAction, you can run with `-tags skip_wowometer_send` to disable POSTing to the Google Form. **It will still trigger the internal PostAction if specified**
