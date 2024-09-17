@@ -109,5 +109,7 @@ func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	wow.PostAction(r, reviewBody, userID)
+	if wow.PostAction != nil {
+		wow.PostAction(r, reviewBody, userID)
+	}
 }
