@@ -12,12 +12,12 @@ import (
 	"github.com/Vizdos-Enterprises/wowometer/internal/parameters"
 )
 
-type wowometerBody struct {
+type WowometerBody struct {
 	Rating   int    `json:"rating"`
 	Feedback string `json:"feedback"`
 }
 
-func (b wowometerBody) Validate() bool {
+func (b WowometerBody) Validate() bool {
 	if b.Rating <= 0 || b.Rating > 5 {
 		return false
 	}
@@ -37,7 +37,7 @@ type WowometerEndpoint struct {
 	FieldIDs       WowometerFormEntryIDs
 	FormID         string
 	DiscoverUserID func(r *http.Request) (string, error)
-	PostAction     func(r *http.Request, rating wowometerBody, forUserID string)
+	PostAction     func(r *http.Request, rating WowometerBody, forUserID string)
 }
 
 func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +61,7 @@ func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reviewBody wowometerBody
+	var reviewBody WowometerBody
 	err = json.Unmarshal(body, &reviewBody)
 	if err != nil {
 		fmt.Println(err)
