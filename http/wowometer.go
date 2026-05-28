@@ -38,6 +38,7 @@ type WowometerEndpoint struct {
 	FormID         string
 	DiscoverUserID func(r *http.Request) (string, error)
 	PostAction     func(r *http.Request, rating WowometerBody, forUserID string)
+	SkipSend       bool
 }
 
 func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +75,7 @@ func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !parameters.SKIP_SEND {
+	if !wow.SkipSend && !parameters.SKIP_SEND {
 		formData := url.Values{
 			fmt.Sprintf("entry.%s", wow.FieldIDs.UserID):   {userID},
 			fmt.Sprintf("entry.%s", wow.FieldIDs.Rating):   {fmt.Sprintf("%d", reviewBody.Rating)},
@@ -107,6 +108,18 @@ func (wow WowometerEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if res.StatusCode != 200 {
 			log.Printf("NEW FALLBACK REVIEW (%s): %s %d %s", wow.ForAppName, userID, reviewBody.Rating, reviewBody.Feedback)
 		}
+	} else {
+		fmt.Printf(
+			"\n📝 WOWOMETER REVIEW (SKIPPED SEND)\n"+
+				"App:      %s\n"+
+				"User ID:  %s\n"+
+				"Rating:   %d/5\n"+
+				"Feedback: %s\n\n",
+			wow.ForAppName,
+			userID,
+			reviewBody.Rating,
+			reviewBody.Feedback,
+		)
 	}
 
 	if wow.PostAction != nil {
